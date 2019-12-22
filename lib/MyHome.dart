@@ -1,7 +1,7 @@
 //import 'package:boreas_condensation_calculator/widgets/myAppBar.dart';
 import 'dart:async';
 import 'package:boreas_condensation_calculator/languages.dart';
-
+import 'package:country_icons/country_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,8 +26,11 @@ class _MyHomeState extends State<MyHome> {
   int selectedTB, divSliderMech, divSliderOffCoil;
   int bottomBarSelectedIndex;
   List<bool> listOfTB;
-  String languageSelection = "Tr";
+  String languageSelection = "En";
   Translations myTranslation;
+  bool switchLangauge;
+  double usaOpacity, trOpacity;
+  String languageEnSelected = "True";
 
   var textFieldMech = TextEditingController();
   var maskedTextSliderMech = new NumberFormat('##.#');
@@ -56,15 +59,19 @@ class _MyHomeState extends State<MyHome> {
     summerOpacity = 1;
     winterOpacity = 0.3;
     bottomBarSelectedIndex = 1;
+    usaOpacity = 1;
+    trOpacity = 0.3;
+ 
     if (languageSelection == "En") {
       myTranslation = new Translations("En");
+         switchLangauge = true;
     } else {
       myTranslation = new Translations("Tr");
+         switchLangauge = false;
     }
   }
 
   Future<String> createSettingsDialog(BuildContext context) {
-    TextEditingController customController = TextEditingController();
     return showDialog(
       context: context,
       builder: (context) {
@@ -74,36 +81,85 @@ class _MyHomeState extends State<MyHome> {
             textAlign: TextAlign.center,
           ),
           content: Container(
-            child: ListView(
-              children: <Widget>[
-                Container(
-                  child: Material(
-                    color: Colors.white,
-                    elevation: 14.0,
-                    borderRadius: BorderRadius.circular(24.0),
-                    shadowColor: Color(0x802196F3),
-                    child: Container(
-                      width: 450,
-                      height: 150,
-                      child: Column(
-                        children: <Widget>[
-                          Row(children: <Widget>[
-                            Text("Select Lanaguage")
-                          ],),
-                          Row(
-                            children: <Widget>[
-                              Switch(
-                                value: true,
-                                onChanged: (bool newvalue) {},
-                              )
-                            ],
-                          ),
-                        ],
+            child: Material(
+              color: Colors.white,
+              elevation: 14.0,
+              borderRadius: BorderRadius.circular(24.0),
+              shadowColor: Color(0x802196F3),
+              child: Container(
+                alignment: Alignment.center,
+                //width: 450,
+                height: 80,
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              child: Opacity(
+                                opacity: trOpacity,
+                                child: Image.asset(
+                                  'icons/flags/png/tr.png',
+                                  package: 'country_icons',
+                                  fit: BoxFit.scaleDown,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          children: <Widget>[
+                            Text("Select Language"),
+                            Switch(
+                              value: switchLangauge,
+                              inactiveTrackColor: Colors.red.shade100,
+                              inactiveThumbColor: Colors.red,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  switchValue = value;
+                                  if (value) {
+                                    usaOpacity = 1;
+                                    trOpacity = 0.3;
+                                  } else {
+                                    usaOpacity = 0.3;
+                                    trOpacity = 1;
+                                  }
+                                });
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              child: Opacity(
+                                opacity: usaOpacity,
+                                child: Image.asset(
+                                  'icons/flags/png/us.png',
+                                  package: 'country_icons',
+                                  fit: BoxFit.scaleDown,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
           actions: <Widget>[
@@ -111,7 +167,7 @@ class _MyHomeState extends State<MyHome> {
               elevation: 5.0,
               child: Text("Submit"),
               onPressed: () {
-                Navigator.of(context).pop(customController.text.toString());
+                Navigator.of(context).pop(switchLangauge.toString());
               },
             )
           ],
@@ -124,11 +180,11 @@ class _MyHomeState extends State<MyHome> {
   Widget build(BuildContext context) {
     var _onpressedCalculateButton;
 
-    if (switchValue) {
+/*     if (switchValue) {
       _onpressedCalculateButton = () {
         print(myTranslation.appTitle);
       };
-    }
+    } */
     //  Screen size calculation
     var screencalc = MediaQuery.of(context).size;
 
@@ -141,7 +197,7 @@ class _MyHomeState extends State<MyHome> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              "Calculate",
+              myTranslation.textCalculate,
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
@@ -152,12 +208,20 @@ class _MyHomeState extends State<MyHome> {
         actions: <Widget>[
           IconButton(
             onPressed: () {
-              createSettingsDialog(context);
+              setState(() {
+                createSettingsDialog(context).then((onValue) {
+                  if (onValue == "True") {
+                    myTranslation = new Translations("En");
+                  } else {
+                    myTranslation = new Translations("Tr");
+                  }
+                });
+              });
             },
             icon: Icon(Icons.settings),
             tooltip: "Open settings screen",
             padding: EdgeInsets.all(5),
-          )
+          ),
         ],
         title: Container(
           width: screencalc.width * 0.5,
@@ -220,7 +284,7 @@ class _MyHomeState extends State<MyHome> {
                               Container(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Text(
-                                  "Select Operation Condition",
+                                  myTranslation.textSelOprCond,
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16.0,
