@@ -1,5 +1,6 @@
 //import 'package:boreas_condensation_calculator/widgets/myAppBar.dart';
 import 'dart:async';
+import 'package:boreas_condensation_calculator/languages.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +17,17 @@ class MyHome extends StatefulWidget {
 
 class _MyHomeState extends State<MyHome> {
   //Mech Slider values
-  double minvalueSliderMech,
-      maxvalueSliderMech,
-      sliderMechValue;
+  double minvalueSliderMech, maxvalueSliderMech, sliderMechValue;
   //Summer and Winter Image Opacity values
-   double summerOpacity,
-      winterOpacity;
+  double summerOpacity, winterOpacity;
   //Off Coil Slider values
   double minvalueSliderOffCoil, maxvalueSliderOffCoil, sliderOffCoilValue;
   bool switchValue;
   int selectedTB, divSliderMech, divSliderOffCoil;
+  int bottomBarSelectedIndex;
   List<bool> listOfTB;
+  String languageSelection = "Tr";
+  Translations myTranslation;
 
   var textFieldMech = TextEditingController();
   var maskedTextSliderMech = new NumberFormat('##.#');
@@ -35,10 +36,9 @@ class _MyHomeState extends State<MyHome> {
   var maskedTextSliderOffCoil = new NumberFormat('##.#');
 //var maskedTextSliderOffCoil = new MaskTextInputFormatter(
   //    mask: '+##.#;-##.#', filter: {"#": RegExp(r'[0-9-]')});
-  var key =GlobalKey<ScaffoldState>();
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     //Mech Room Slider Set Values
     minvalueSliderMech = 15;
@@ -55,41 +55,117 @@ class _MyHomeState extends State<MyHome> {
     switchValue = false;
     summerOpacity = 1;
     winterOpacity = 0.3;
+    bottomBarSelectedIndex = 1;
+    if (languageSelection == "En") {
+      myTranslation = new Translations("En");
+    } else {
+      myTranslation = new Translations("Tr");
+    }
+  }
+
+  Future<String> createSettingsDialog(BuildContext context) {
+    TextEditingController customController = TextEditingController();
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Program Settings",
+            textAlign: TextAlign.center,
+          ),
+          content: Container(
+            child: ListView(
+              children: <Widget>[
+                Container(
+                  child: Material(
+                    color: Colors.white,
+                    elevation: 14.0,
+                    borderRadius: BorderRadius.circular(24.0),
+                    shadowColor: Color(0x802196F3),
+                    child: Container(
+                      width: 450,
+                      height: 150,
+                      child: Column(
+                        children: <Widget>[
+                          Row(children: <Widget>[
+                            Text("Select Lanaguage")
+                          ],),
+                          Row(
+                            children: <Widget>[
+                              Switch(
+                                value: true,
+                                onChanged: (bool newvalue) {},
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            MaterialButton(
+              elevation: 5.0,
+              child: Text("Submit"),
+              onPressed: () {
+                Navigator.of(context).pop(customController.text.toString());
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    var mypicker= new Picker(
-        adapter: NumberPickerAdapter(data: [
-          NumberPickerColumn(begin: 0, end: 999),
-          NumberPickerColumn(begin: 100, end: 200),
-        ]),
-        delimiter: [
-          PickerDelimiter(child: Container(
-            width: 30.0,
-            alignment: Alignment.center,
-            child: Icon(Icons.more_vert),
-          ))
-        ],
-        hideHeader: true,
-        title: new Text("Please Select"),
-        onConfirm: (Picker picker, List value) {
-          print(value.toString());
-          print(picker.getSelectedValues());
-        }
-    );
-    // Screen size calculation
+    var _onpressedCalculateButton;
+
+    if (switchValue) {
+      _onpressedCalculateButton = () {
+        print(myTranslation.appTitle);
+      };
+    }
+    //  Screen size calculation
     var screencalc = MediaQuery.of(context).size;
 
     return new Scaffold(
-      key: key,
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.all(100.0),
-          child: FittedBox(
-            child: Image.asset("lib/images/LogoAtTop.png"),
-            fit: BoxFit.cover,
+      bottomNavigationBar: Container(
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(30)),
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Calculate",
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ),
+          onPressed: _onpressedCalculateButton,
+        ),
+      ),
+      appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            onPressed: () {
+              createSettingsDialog(context);
+            },
+            icon: Icon(Icons.settings),
+            tooltip: "Open settings screen",
+            padding: EdgeInsets.all(5),
+          )
+        ],
+        title: Container(
+          width: screencalc.width * 0.5,
+          height: kToolbarHeight * 0.9,
+          margin: EdgeInsets.all(10.0),
+          alignment: Alignment.center,
+          child: Image.asset("lib/images/LogoAtTop.png"),
+          //
         ),
         centerTitle: true,
       ),
@@ -98,18 +174,12 @@ class _MyHomeState extends State<MyHome> {
         color: Color(0xffE5E5E5),
         child: ListView(
           children: <Widget>[
-           RaisedButton(
-             child: Text("data"),
-             onPressed: (){
-               mypicker.show(key.currentState);
-             },
-           ),
             Container(
               child: Padding(
                 padding: const EdgeInsets.all(6.0),
                 child: Container(
                     child: Text(
-                  "Condensation Calculator",
+                  myTranslation.mainTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: Colors.black,
@@ -214,8 +284,9 @@ class _MyHomeState extends State<MyHome> {
                   borderRadius: BorderRadius.circular(24.0),
                   shadowColor: Color(0x802196F3),
                   child: Container(
+                    margin: EdgeInsets.all(5),
                     width: 450.0,
-                    height: 200.0,
+                    //height: 200.0,
                     child: Column(
                       children: <Widget>[
                         Padding(
@@ -317,7 +388,7 @@ class _MyHomeState extends State<MyHome> {
                   shadowColor: Color(0x802196F3),
                   child: Container(
                     width: 450.0,
-                    height: 200.0,
+                    //height: 200.0,
                     child: Column(
                       children: <Widget>[
                         Padding(
@@ -377,7 +448,8 @@ class _MyHomeState extends State<MyHome> {
                             },
                           )),
                         ),
-                        Padding(
+                        Container(
+                          margin: EdgeInsets.all(5),
                           padding: const EdgeInsets.all(2.0),
                           child: Container(
                             alignment: Alignment.centerRight,
@@ -468,9 +540,12 @@ class _MyHomeState extends State<MyHome> {
                     shape: RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30)),
                     color: Colors.blue,
-                    child: Text(
-                      "Calculate",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        "Calculate",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
                     ),
                     onPressed: () {},
                   ),
