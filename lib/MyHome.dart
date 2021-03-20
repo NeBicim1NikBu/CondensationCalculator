@@ -6,9 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_picker/flutter_picker.dart';
+import 'package:horizontal_picker/horizontal_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'langselection.dart';
 
 class MyHome extends StatefulWidget {
   @override
@@ -31,6 +33,7 @@ class _MyHomeState extends State<MyHome> {
   bool switchLangauge;
   double usaOpacity, trOpacity;
   String languageEnSelected = "True";
+  String myMechTempInt, myMechTempDec;
 
   var textFieldMech = TextEditingController();
   var maskedTextSliderMech = new NumberFormat('##.#');
@@ -39,7 +42,7 @@ class _MyHomeState extends State<MyHome> {
   var maskedTextSliderOffCoil = new NumberFormat('##.#');
 //var maskedTextSliderOffCoil = new MaskTextInputFormatter(
   //    mask: '+##.#;-##.#', filter: {"#": RegExp(r'[0-9-]')});
-
+  Color myAppColor = Color(0xffff520d);
   @override
   initState() {
     super.initState();
@@ -47,7 +50,9 @@ class _MyHomeState extends State<MyHome> {
     minvalueSliderMech = 15;
     maxvalueSliderMech = 50;
     sliderMechValue = ((maxvalueSliderMech - minvalueSliderMech) / 2);
-    divSliderMech = (200 * (maxvalueSliderMech - minvalueSliderMech)).toInt();
+    myMechTempInt = sliderMechValue.toStringAsFixed(0);
+    myMechTempDec = "0";
+    divSliderMech = (maxvalueSliderMech - minvalueSliderMech).toInt();
     //Off Coil Slider Set Values
     minvalueSliderOffCoil = -15;
     maxvalueSliderOffCoil = 20;
@@ -61,130 +66,20 @@ class _MyHomeState extends State<MyHome> {
     bottomBarSelectedIndex = 1;
     usaOpacity = 1;
     trOpacity = 0.3;
- 
+
     if (languageSelection == "En") {
       myTranslation = new Translations("En");
-         switchLangauge = true;
+      switchLangauge = true;
     } else {
       myTranslation = new Translations("Tr");
-         switchLangauge = false;
+      switchLangauge = false;
     }
-  }
-
-  Future<String> createSettingsDialog(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            "Program Settings",
-            textAlign: TextAlign.center,
-          ),
-          content: Container(
-            child: Material(
-              color: Colors.white,
-              elevation: 14.0,
-              borderRadius: BorderRadius.circular(24.0),
-              shadowColor: Color(0x802196F3),
-              child: Container(
-                alignment: Alignment.center,
-                //width: 450,
-                height: 80,
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Opacity(
-                                opacity: trOpacity,
-                                child: Image.asset(
-                                  'icons/flags/png/tr.png',
-                                  package: 'country_icons',
-                                  fit: BoxFit.scaleDown,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          children: <Widget>[
-                            Text("Select Language"),
-                            Switch(
-                              value: switchLangauge,
-                              inactiveTrackColor: Colors.red.shade100,
-                              inactiveThumbColor: Colors.red,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  switchValue = value;
-                                  if (value) {
-                                    usaOpacity = 1;
-                                    trOpacity = 0.3;
-                                  } else {
-                                    usaOpacity = 0.3;
-                                    trOpacity = 1;
-                                  }
-                                });
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(20),
-                              child: Opacity(
-                                opacity: usaOpacity,
-                                child: Image.asset(
-                                  'icons/flags/png/us.png',
-                                  package: 'country_icons',
-                                  fit: BoxFit.scaleDown,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            MaterialButton(
-              elevation: 5.0,
-              child: Text("Submit"),
-              onPressed: () {
-                Navigator.of(context).pop(switchLangauge.toString());
-              },
-            )
-          ],
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     var _onpressedCalculateButton;
 
-/*     if (switchValue) {
-      _onpressedCalculateButton = () {
-        print(myTranslation.appTitle);
-      };
-    } */
     //  Screen size calculation
     var screencalc = MediaQuery.of(context).size;
 
@@ -205,18 +100,39 @@ class _MyHomeState extends State<MyHome> {
         ),
       ),
       appBar: AppBar(
+        backgroundColor: myAppColor,
         actions: <Widget>[
           IconButton(
             onPressed: () {
-              setState(() {
-                createSettingsDialog(context).then((onValue) {
-                  if (onValue == "True") {
-                    myTranslation = new Translations("En");
-                  } else {
-                    myTranslation = new Translations("Tr");
-                  }
-                });
-              });
+              showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          MyLang(
+                              langDatas: myTranslation,
+                              curLang: languageSelection,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  languageSelection = newValue;
+                                  myTranslation = new Translations(newValue);
+                                });
+                                print("newValue " + newValue.toString());
+                              })
+                        ],
+                      ),
+                      actions: <Widget>[
+                        ButtonBar(
+                          children: <Widget>[],
+                        )
+                      ],
+                    );
+                  });
             },
             icon: Icon(Icons.settings),
             tooltip: "Open settings screen",
@@ -262,75 +178,107 @@ class _MyHomeState extends State<MyHome> {
                   borderRadius: BorderRadius.circular(24.0),
                   shadowColor: Color(0x802196F3),
                   child: Container(
+                    padding: EdgeInsets.all(8.0),
                     width: 450.0,
-                    height: 150.0,
-                    child: Row(
+                    // height: 150.0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            child: Opacity(
-                              opacity: summerOpacity,
-                              child: Image.asset(
-                                "lib/images/summer.png",
-                                scale: 4,
-                                colorBlendMode: BlendMode.darken,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Container(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                myTranslation.textSelOprCond,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        Expanded(
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  myTranslation.textSelOprCond,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16.0,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: (switchValue == false)
+                                  ? null
+                                  : () => setState(
+                                        () {
+                                          switchValue = false;
+                                          summerOpacity = 1.0;
+                                          winterOpacity = 0.3;
+                                          myAppColor = Color(0xffff520d);
+                                        },
+                                      ),
+                              child: Container(
+                                child: Opacity(
+                                  opacity: summerOpacity,
+                                  child: Image.asset(
+                                    "lib/images/summer.png",
+                                    scale: 4,
+                                    colorBlendMode: BlendMode.darken,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Switch(
-                                  autofocus: true,
-                                  activeColor: Colors.blue,
-                                  activeTrackColor: Colors.blue.shade100,
-                                  inactiveTrackColor: Colors.orange.shade100,
-                                  inactiveThumbColor: Colors.orange,
-                                  value: switchValue,
-                                  onChanged: (newswitchvalue) {
-                                    setState(() {
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Switch(
+                                autofocus: true,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.padded,
+                                activeColor: Colors.blue,
+                                activeTrackColor: Colors.blue.shade100,
+                                inactiveTrackColor: Colors.orange.shade100,
+                                inactiveThumbColor: Colors.orange,
+                                value: switchValue,
+                                onChanged: (newswitchvalue) {
+                                  setState(
+                                    () {
                                       switchValue = newswitchvalue;
                                       if (newswitchvalue) {
                                         summerOpacity = 0.3;
                                         winterOpacity = 1.0;
+                                        myAppColor = Colors.blue;
                                       } else {
                                         summerOpacity = 1.0;
                                         winterOpacity = 0.3;
+                                        myAppColor = Color(0xffff520d);
                                       }
-
-                                      print(switchValue.toString());
-                                    });
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            child: Opacity(
-                              opacity: winterOpacity,
-                              child: Image.asset(
-                                "lib/images/winter.png",
-                                scale: 5,
+                                    },
+                                  );
+                                },
                               ),
                             ),
-                          ),
-                        )
+                            GestureDetector(
+                              onTap: (switchValue == true)
+                                  ? null
+                                  : () => setState(
+                                        () {
+                                          switchValue = true;
+                                          summerOpacity = 0.3;
+                                          winterOpacity = 1.0;
+                                          myAppColor = Colors.blue;
+                                        },
+                                      ),
+                              child: Container(
+                                child: Opacity(
+                                  opacity: winterOpacity,
+                                  child: Image.asset(
+                                    "lib/images/winter.png",
+                                    scale: 5,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -348,50 +296,99 @@ class _MyHomeState extends State<MyHome> {
                   borderRadius: BorderRadius.circular(24.0),
                   shadowColor: Color(0x802196F3),
                   child: Container(
-                    margin: EdgeInsets.all(5),
                     width: 450.0,
                     //height: 200.0,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Padding(
+                          //mainAxisSize: MainAxisSize.min,
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
-                            width: 200,
-                            height: 70,
-                            alignment: Alignment.centerLeft,
-                            child: new NumberPicker.decimal(
-                              decoration: new BoxDecoration(
-                                border: new Border(
-                                  right: new BorderSide(
-                                    style: BorderStyle.solid,
-                                    color: Colors.grey.shade300,
-                                  ),
-                                  left: new BorderSide(
-                                      style: BorderStyle.solid,
-                                      color: Colors.grey.shade300),
-                                  top: new BorderSide(
-                                    style: BorderStyle.solid,
-                                    color: Colors.blue,
-                                  ),
-                                  bottom: new BorderSide(
-                                    style: BorderStyle.solid,
-                                    color: Colors.blue,
-                                  ),
-                                ),
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              myTranslation.textMechRoomCond,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
                               ),
-                              listViewWidth: 30,
-                              itemExtent: 22,
-                              minValue: minvalueSliderMech.toInt(),
-                              maxValue: maxvalueSliderMech.toInt(),
-                              initialValue: sliderMechValue,
-                              onChanged: (newvalue) {
-                                print(newvalue);
-                                setState(() {
-                                  sliderMechValue = newvalue;
-                                });
-                              },
+                              textAlign: TextAlign.center,
                             ),
                           ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          //padding: const EdgeInsets.all(8.0),
+                          children: <Widget>[
+                            Container(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                myMechTempInt + "." + myMechTempDec,
+                                style: TextStyle(
+                                  backgroundColor: Colors.black54,
+                                  color: Colors.white70,
+                                  fontSize: 24.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              height: 120,
+                              width: double.infinity,
+                              child: new HorizantalPicker(
+                                showCursor: false,
+                                suffix: "°C",
+                                minValue: 0.0, //minvalueSliderMech,
+                                maxValue: 0.9, //maxvalueSliderMech,
+                                divisions: 9, //divSliderMech,
+                                onChanged: (newValue) {
+                                  setState(
+                                    () {
+                                      myMechTempDec =
+                                          ((newValue - newValue.truncate()) *
+                                                  10)
+                                              .toStringAsFixed(0);
+                                      print(myMechTempDec.toString());
+                                      // sliderMechValue = newValue;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(
+                              width: 300, //double.infinity,
+                              height: 115,
+                              //alignment: Alignment.centerLeft,
+                              child: new HorizantalPicker(
+                                showCursor: false,
+                                suffix: "°C",
+                                minValue: minvalueSliderMech,
+                                maxValue: maxvalueSliderMech,
+                                divisions: divSliderMech,
+                                onChanged: (newValue) {
+                                  setState(
+                                    () {
+                                      myMechTempInt = (newValue.truncate())
+                                          .toStringAsFixed(0);
+                                      // sliderMechValue = newValue;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                         Padding(
                           padding: const EdgeInsets.all(2.0),

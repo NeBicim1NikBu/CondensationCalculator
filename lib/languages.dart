@@ -4,20 +4,29 @@ class Translations {
     "En": {
       "appTitle": "Boreas Condensation Calculator",
       "mainTitle": "Condensation Calculator",
-      "textSelOprCond": "Select Operation Condition",
-      "textCalculate": "Calculate"
+      "textSelOprCond": "Operating Condition",
+      "textCalculate": "Calculate",
+      "submit": "Submit",
+      "textMechRoomCond": "Mechanical Room DB Temperature",
     },
     "Tr": {
       "appTitle": "Boreas Yoğuşma Hesabı",
       "mainTitle": "Yoğuşma Hesabı",
-      "textSelOprCond": "Çalışma Koşulunu Seçiniz",
-      "textCalculate": "Hesapla"
+      "textSelOprCond": "Çalışma Koşulunu",
+      "textCalculate": "Hesapla",
+      "submit": "Onay",
+      "textMechRoomCond": "Mekanik Oda KT Sıcaklığı",
     },
   };
 
   String get appTitle => languageMap[_language]["appTitle"];
   set appTitle(String value) {
     languageMap[_language]["appTitle"] = value;
+  }
+
+  String get submitTitle => languageMap[_language]["submit"];
+  set submitTitle(String value) {
+    languageMap[_language]["submit"] = value;
   }
 
   String get mainTitle => languageMap[_language]["mainTitle"];
@@ -29,11 +38,16 @@ class Translations {
   set textSelOprCond(String value) {
     languageMap[_language]["textSelOprCond"] = value;
   }
-    String get textCalculate => languageMap[_language]["textCalculate"];
+
+  String get textCalculate => languageMap[_language]["textCalculate"];
   set textCalculate(String value) {
     languageMap[_language]["textCalculate"] = value;
   }
-
+  
+  String get textMechRoomCond => languageMap[_language]["textMechRoomCond"];
+  set textMechRoomCond(String value) {
+    languageMap[_language]["textMechRoomCond"] = value;
+  }
 
   Translations(String language) {
     this._language = language;
